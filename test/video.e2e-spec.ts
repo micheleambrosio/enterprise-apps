@@ -21,7 +21,7 @@ describe('VideoController (e2e)', () => {
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  beforeEach(async () => {
+  beforeEach(() => {
     jest
       .useFakeTimers({ advanceTimers: true })
       .setSystemTime(new Date('2025-01-01'));
