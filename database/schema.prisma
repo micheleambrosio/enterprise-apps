@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -7,14 +7,97 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Video {
-  id        String   @id
-  title     String
+model Content {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  type        ContentType
+  title       String
   description String
+
+  movie       Movie?
+  tvShow      TvShow?
+}
+
+model Movie {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  contentId   String   @unique
+  thumbnailId String?  @unique
+  videoId     String?  @unique
+
+  content     Content   @relation(fields: [contentId], references: [id])
+  thumbnail   Thumbnail? @relation(fields: [thumbnailId], references: [id])
+  video       Video?     @relation(fields: [videoId], references: [id])
+}
+
+model TvShow {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  contentId   String   @unique
+  thumbnailId String?  @unique
+
+  content     Content   @relation(fields: [contentId], references: [id])
+  thumbnail   Thumbnail? @relation(fields: [thumbnailId], references: [id])
+  episodes    Episode[]
+}
+
+model Episode {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  title       String
+  description String
+  season      Int
+  number      Int
+
+  tvShowId    String
+  thumbnailId String?  @unique
+  videoId     String?  @unique
+
+  tvShow      TvShow     @relation(fields: [tvShowId], references: [id])
+  thumbnail   Thumbnail? @relation(fields: [thumbnailId], references: [id])
+  video       Video?     @relation(fields: [videoId], references: [id])
+}
+
+model Video {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
   url       String
   sizeInKb  Int
   duration  Int
-  thumbnailUrl String?
-  createdAt DateTime
-  updatedAt DateTime
+
+  movie     Movie?
+  episode   Episode?
+}
+
+model Thumbnail {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  url       String
+
+  movie     Movie?
+  tvShow    TvShow?
+  episode   Episode?
+}
+
+enum ContentType {
+  MOVIE
+  TV_SHOW
 }
